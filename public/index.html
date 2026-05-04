@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🚢 Fishing Boat Management System</title>
+  <meta name="description" content="Professional fishing boat business management for owners and workers — trips, payments, crew, and analytics." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#090e17">
+</head>
+<body>
+  <!-- Language Selection Screen -->
+  <div id="lang-screen" class="screen active">
+    <div class="lang-container">
+      <div class="lang-logo">
+        <i class="fa-solid fa-ship"></i>
+        <h1 id="lang-title">Fishing Boat Management</h1>
+        <p>Select your language / भाषा चुनें / ಭಾಷೆ ಆಯ್ಕೆ</p>
+      </div>
+      <div class="lang-buttons">
+        <button class="lang-btn" onclick="App.selectLanguage('en')" id="btn-lang-en">
+          <span class="lang-flag">🇬🇧</span>
+          <span class="lang-name">English</span>
+          <span class="lang-sub">English</span>
+        </button>
+        <button class="lang-btn" onclick="App.selectLanguage('hi')" id="btn-lang-hi">
+          <span class="lang-flag">🇮🇳</span>
+          <span class="lang-name">हिंदी</span>
+          <span class="lang-sub">Hindi</span>
+        </button>
+        <button class="lang-btn" onclick="App.selectLanguage('kn')" id="btn-lang-kn">
+          <span class="lang-flag">🏴</span>
+          <span class="lang-name">ಕನ್ನಡ</span>
+          <span class="lang-sub">Kannada</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Screen -->
+  <div id="login-screen" class="screen">
+    <div class="login-bg">
+      <div class="login-waves"></div>
+      <div class="login-card">
+        <div class="login-header">
+          <div class="login-icon"><i class="fa-solid fa-ship"></i></div>
+          <h1 id="login-title" class="i18n" data-key="app_title">Fishing Boat Management</h1>
+          <p class="login-sub">🔐 Secure Business Login</p>
+        </div>
+        <form id="login-form" class="login-form" onsubmit="Auth.login(event)">
+          <div class="form-group">
+            <label class="i18n" data-key="username" for="login-username"><i class="fa-solid fa-user"></i> Username</label>
+            <input type="text" id="login-username" class="form-input" placeholder="owner" autocomplete="username" required />
+          </div>
+          <div class="form-group">
+            <label class="i18n" data-key="pin" for="login-pin"><i class="fa-solid fa-lock"></i> PIN</label>
+            <div class="pin-input-wrap">
+              <input type="password" id="login-pin" class="form-input" placeholder="••••" maxlength="6" autocomplete="current-password" required />
+              <button type="button" class="pin-toggle" onclick="Auth.togglePin()"><i class="fa-solid fa-eye" id="pin-eye"></i></button>
+            </div>
+          </div>
+          <div id="login-error" class="alert alert-error hidden"></div>
+          <button type="submit" id="login-btn" class="btn btn-primary btn-large btn-block">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span class="i18n" data-key="login">Login</span>
+          </button>
+        </form>
+        <div class="login-footer">
+          <button class="btn-ghost" onclick="App.showLanguageScreen()">
+            <i class="fa-solid fa-globe"></i> <span id="login-lang-label">Change Language</span>
+          </button>
+          <button class="btn-ghost" onclick="Auth.speakWelcome()">
+            <i class="fa-solid fa-volume-high"></i> Audio Guide
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App Shell -->
+  <div id="app-shell" class="screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <i class="fa-solid fa-ship"></i>
+          <span class="sidebar-title i18n" data-key="app_title">Fishing Boat</span>
+        </div>
+        <button class="sidebar-close" onclick="App.toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebar-avatar">👤</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-name">–</div>
+          <div class="user-role badge" id="sidebar-role">–</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <!-- Dynamically populated -->
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="lang-switcher">
+          <button class="lang-pill" onclick="App.switchLang('en')">EN</button>
+          <button class="lang-pill" onclick="App.switchLang('hi')">HI</button>
+          <button class="lang-pill" onclick="App.switchLang('kn')">KN</button>
+        </div>
+        <button class="btn-logout" onclick="Auth.logout()">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span class="i18n" data-key="logout">Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <button class="menu-btn" onclick="App.toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+        <div class="topbar-title" id="page-title">Dashboard</div>
+        <div class="topbar-actions">
+          <div class="db-indicator" id="db-indicator" title="Database status">
+            <i class="fa-solid fa-circle"></i>
+          </div>
+          <button class="icon-btn" onclick="App.toggleTheme()" title="Toggle Theme">
+            <i class="fa-solid fa-moon" id="theme-icon"></i>
+          </button>
+          <button class="icon-btn" onclick="Auth.speakPage()" title="Audio guide">
+            <i class="fa-solid fa-volume-high"></i>
+          </button>
+          <button class="icon-btn" onclick="App.printPage()" title="Print" id="btn-print">
+            <i class="fa-solid fa-print"></i>
+          </button>
+          <div class="pending-badge-wrap" id="pending-badge-wrap" style="display:none;">
+            <button class="icon-btn" onclick="App.navigate('payments')" title="Pending payments">
+              <i class="fa-solid fa-bell"></i>
+              <span class="pending-count" id="pending-count">0</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Views -->
+      <main class="page-area" id="page-area">
+
+        <!-- Dashboard View -->
+        <div id="view-dashboard" class="view active">
+          <div class="view-header">
+            <h2 class="view-title i18n" data-key="dashboard">Dashboard</h2>
+            <div class="date-filter">
+              <input type="date" id="dash-from" class="form-input-sm" onchange="Dashboard.load()" />
+              <span>–</span>
+              <input type="date" id="dash-to" class="form-input-sm" onchange="Dashboard.load()" />
+            </div>
+          </div>
+          <div id="dashboard-content"></div>
+        </div>
+
+        <!-- Workers View -->
+        <div id="view-workers" class="view">
+          <div class="view-header">
+            <h2 class="view-title i18n" data-key="workers">Workers</h2>
+            <div class="view-actions">
+              <input type="text" id="worker-search" class="form-input-sm" placeholder="Search..." oninput="Workers.search()" />
+              <button class="btn btn-primary" onclick="Workers.showForm()" id="btn-add-worker">
+                <i class="fa-solid fa-plus"></i> <span class="i18n" data-key="add_worker">Add Worker</span>
+              </button>
+            </div>
+          </div>
+          <div id="workers-list"></div>
+        </div>
+
+        <!-- Trips View -->
+        <div id="view-trips" class="view">
+          <div class="view-header">
+            <h2 class="view-title i18n" data-key="trips">Trips</h2>
+            <div class="view-actions">
+              <select id="trip-status-filter" class="form-input-sm" onchange="Trips.load()">
+                <option value="">All Status</option>
+                <option value="planned">Planned</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <button class="btn btn-primary" onclick="Trips.showForm()" id="btn-add-trip">
+                <i class="fa-solid fa-plus"></i> <span class="i18n" data-key="add_trip">Add Trip</span>
+              </button>
+            </div>
+          </div>
+          <div id="trips-list"></div>
+        </div>
+
+        <!-- Attendance View -->
+        <div id="view-attendance" class="view">
+          <div class="view-header">
+            <h2 class="view-title"><i class="fa-solid fa-calendar-check" style="color:var(--primary);margin-right:8px"></i> Daily Attendance</h2>
+            <div class="view-actions">
+              <input type="date" id="attendance-date" class="form-input-sm" onchange="Attendance.load()" />
+            </div>
+          </div>
+          <div id="attendance-list"></div>
+        </div>
+
+        <!-- Payments View -->
+        <div id="view-payments" class="view">
+          <div class="view-header">
+            <h2 class="view-title i18n" data-key="payments">Payments</h2>
+            <div class="view-actions">
+              <select id="pay-status-filter" class="form-input-sm" onchange="Payments.load()">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="paid">Paid</option>
+                <option value="rejected">Rejected</option>
+                <option value="reversed">Reversed</option>
+              </select>
+              <button class="btn btn-success" onclick="Payments.bulkApprove()" id="btn-bulk-approve" style="display:none;">
+                <i class="fa-solid fa-check-double"></i> <span class="i18n" data-key="bulk_approve">Approve All</span>
+              </button>
+              <button class="btn btn-primary" onclick="Payments.showForm()" id="btn-add-payment">
+                <i class="fa-solid fa-plus"></i> New Payment
+              </button>
+            </div>
+          </div>
+          <div id="payments-list"></div>
+        </div>
+
+        <!-- Reports View -->
+        <div id="view-reports" class="view">
+          <div class="view-header">
+            <h2 class="view-title i18n" data-key="reports">Reports</h2>
+            <div class="view-actions">
+              <select id="report-year" class="form-input-sm" onchange="Reports.loadMonthly()"></select>
+            </div>
+          </div>
+          <div id="reports-content"></div>
+        </div>
+
+        <!-- Worker Profile View -->
+        <div id="view-profile" class="view">
+          <div class="view-header">
+            <h2 class="view-title i18n" data-key="profile">My Profile</h2>
+          </div>
+          <div id="profile-content"></div>
+        </div>
+
+        <!-- Settings View -->
+        <div id="view-settings" class="view">
+          <div class="view-header">
+            <h2 class="view-title i18n" data-key="settings">Settings</h2>
+          </div>
+          <div id="settings-content"></div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ═══ MODALS ═══ -->
+
+  <!-- Universal Modal -->
+  <div id="modal-overlay" class="modal-overlay" onclick="Modal.close(event)">
+    <div class="modal" id="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modal-title">Modal</h3>
+        <button class="modal-close-btn" onclick="Modal.close()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="/js/i18n.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('SW Registered'))
+          .catch(err => console.log('SW Error', err));
+      });
+    }
+  </script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/workers.js"></script>
+  <script src="/js/trips.js"></script>
+  <script src="/js/attendance.js"></script>
+  <script src="/js/payments.js"></script>
+  <script src="/js/reports.js"></script>
+  <script src="/js/profile.js"></script>
+  <script src="/js/modal.js"></script>
+  <script>
+    // Bootstrap
+    document.addEventListener('DOMContentLoaded', () => App.init());
+  </script>
+</body>
+</html>
