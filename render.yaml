@@ -1,6 +1,7 @@
 services:
   - type: web
     name: fishing-boat-management
+    plan: free
     env: node
     buildCommand: npm install
     startCommand: npm start
